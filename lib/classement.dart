@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:world_cup/create_team.dart';
+import 'package:world_cup/team_detail.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
@@ -59,6 +61,19 @@ class TeamRankingPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              // Lorsque le bouton "+" est cliqué, naviguez vers la page CreateTeam
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CreateTeam(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: teams.length,
@@ -97,9 +112,15 @@ class TeamRankingItem extends StatelessWidget {
       ),
       title: Text(
         '${team.position}. ${team.name}',
-        style: TextStyle(fontSize: 18),
+        style: const TextStyle(fontSize: 18),
       ),
-      // Vous pouvez ajouter d'autres détails du classement ici
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => TeamDetail(teamName: team.name),
+          ),
+        );
+      },
     );
   }
 }
