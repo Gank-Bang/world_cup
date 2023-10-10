@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:world_cup/api_graphql.dart';
 import 'package:world_cup/classement.dart';
 import 'package:world_cup/poules.dart';
 import 'package:world_cup/recherche.dart';
 
 import 'matchs.dart';
-
 void main() {
-  runApp(const MyApp());
+  runApp(
+    GraphQLProvider(
+      client: clientNotifier,
+      child: const MyApp(),
+    ),
+  );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
@@ -15,6 +22,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+
       title: 'Flutter Demo',
       theme: ThemeData.dark().copyWith(
         // Utilisez le themeData.dark() pour obtenir un thème sombre de base
