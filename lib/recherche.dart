@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:graphql/client.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
@@ -27,18 +28,55 @@ class _MatchSearchPageState extends State<MatchSearchPage> {
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  final _client = GraphQLClient(
+    link: HttpLink('http://localhost:3100/graphql'),
+    cache: GraphQLCache(),
+  );
+
+  List<dynamic> _searchResults = [];
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-  void _performSearch() {
+  void _performSearch() async {
     setState(() {
       _searchQuery = _searchController.text;
-      print("dsf");
-      // Vous pouvez utiliser '_searchQuery' pour effectuer une recherche API ici
     });
+
+    final QueryResult result = await _client.query(
+      QueryOptions(
+        document: gql('''
+            query SearchPlayers(\$searchQuery: String!) {
+              filteredPlayersByName(playerName: \$searchQuery) {
+                id
+                name
+                yellowCards
+                redCards
+                goalsScored
+                assists
+                position
+              }
+            }
+          '''),
+        variables: {'searchQuery': _searchQuery},
+      ),
+    );
+
+    if (result.hasException) {
+      print(result.exception.toString());
+      return;
+    }
+
+    if (result.data != null) {
+      final List<dynamic> searchResultsData = result.data!['filteredPlayersByName'];
+
+      setState(() {
+        _searchResults = searchResultsData;
+      });
+    }
   }
 
   @override
@@ -60,7 +98,7 @@ class _MatchSearchPageState extends State<MatchSearchPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Rechercher un match',
+                labelText: 'Rechercher un joueur',
                 border: OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(Icons.search),
@@ -69,13 +107,17 @@ class _MatchSearchPageState extends State<MatchSearchPage> {
               ),
             ),
           ),
-          // Afficher les résultats de la recherche ici
           Expanded(
-            child: Center(
-              child: Text(
-                'Résultats de la recherche : $_searchQuery',
-                style: TextStyle(fontSize: 20),
-              ),
+            child: ListView.builder(
+              itemCount: _searchResults.length,
+              itemBuilder: (context, index) {
+                final player = _searchResults[index];
+                return ListTile(
+                  title: Text('Nom: ${player['name']}'),
+                  subtitle: Text('Role: ${player['position']}\nButs: ${player['goalsScored']}\nAssists: ${player['assists']}\nCartons Jaune: ${player['yellowCards']}\nCartons rouge: ${player['redCards']}'),
+                  // Ajoutez d'autres champs ici
+                );
+              },
             ),
           ),
         ],
