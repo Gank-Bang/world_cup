@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TeamDetail extends StatefulWidget {
   final String teamName;
+  final String teamId;
 
-  TeamDetail({Key? key, required this.teamName}) : super(key: key);
+  TeamDetail({Key? key, required this.teamName, required this.teamId}) : super(key: key);
 
   @override
   State<TeamDetail> createState() => _TeamDetailState();
 }
 
 class _TeamDetailState extends State<TeamDetail> {
-  // Liste de joueurs (en dur pour l'exemple)
-  final List<Player> players = [
-    Player(name: 'Joueur 1', yellowCards: 2, redCards: 0, goals: 3, position: 'Attaquant'),
-    Player(name: 'Joueur 2', yellowCards: 1, redCards: 0, goals: 1, position: 'Milieu'),
-    Player(name: 'Joueur 3', yellowCards: 0, redCards: 1, goals: 0, position: 'Défenseur'),
-    // Ajoutez d'autres joueurs ici
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,44 +25,56 @@ class _TeamDetailState extends State<TeamDetail> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Center(
-            child: Text(
-              'Nom de l\'équipe : ${widget.teamName}',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: players.length,
-              itemBuilder: (context, index) {
-                final player = players[index];
-                return ListTile(
-                  title: Text(player.name),
-                  subtitle: Text('Cartons jaunes: ${player.yellowCards}, Cartons rouges: ${player.redCards}, Buts: ${player.goals}, Poste: ${player.position}'),
-                );
-              },
-            ),
-          ),
-        ],
+      body: Query(
+        options: QueryOptions(
+          document: gql('''
+            query {
+              players(team_id: ${widget.teamId}) {
+                name
+                position
+                goalsScored
+                assists
+                yellowCards
+                redCards
+              }
+            }
+          '''),
+        ),
+        builder: (QueryResult result, {refetch, fetchMore}) {
+          if (result.hasException) {
+            return Text('Erreur de chargement des données: ${result.exception.toString()}');
+          }
+
+          if (result.isLoading) {
+            return CircularProgressIndicator();
+          }
+
+          final players = result.data!['players'];
+
+          return Column(
+            children: [
+              Center(
+                child: Text(
+                  'Nom de l\'équipe : ${widget.teamName}',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: players.length,
+                  itemBuilder: (context, index) {
+                    final player = players[index];
+                    return ListTile(
+                      title: Text(player['name']),
+                      subtitle: Text('Cartons jaunes: ${player['yellowCards']}, Cartons rouges: ${player['redCards']}, Buts: ${player['goalsScored']}, Poste: ${player['position']}'),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
-}
-
-class Player {
-  final String name;
-  final int yellowCards;
-  final int redCards;
-  final int goals;
-  final String position;
-
-  Player({
-    required this.name,
-    required this.yellowCards,
-    required this.redCards,
-    required this.goals,
-    required this.position,
-  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,29 +24,6 @@ class MyApp extends StatelessWidget {
 class GroupStandingsPage extends StatelessWidget {
   GroupStandingsPage();
 
-  // Exemples de classement des poules
-  final List<Group> groups = [
-    Group(
-      groupName: 'Groupe A',
-      teams: [
-        Team(position: 1, name: 'France', points: 9),
-        Team(position: 2, name: 'Brazil', points: 6),
-        Team(position: 3, name: 'Germany', points: 3),
-        Team(position: 4, name: 'Spain', points: 0),
-      ],
-    ),
-    Group(
-      groupName: 'Groupe B',
-      teams: [
-        Team(position: 1, name: 'Argentina', points: 7),
-        Team(position: 2, name: 'Italy', points: 5),
-        Team(position: 3, name: 'Netherlands', points: 4),
-        Team(position: 4, name: 'Portugal', points: 1),
-      ],
-    ),
-    // Ajoutez d'autres groupes ici
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,40 +36,46 @@ class GroupStandingsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: groups.length,
-        itemBuilder: (context, index) {
-          return GroupStandingsItem(group: groups[index]);
+      body: Query(
+        options: QueryOptions(
+          document: gql('''
+            query {
+              groups {
+                name
+                teams {
+                  name
+                  flagURL
+                }
+              }
+            }
+          '''),
+        ),
+        builder: (QueryResult result, {refetch, fetchMore}) {
+          if (result.hasException) {
+            return Text('Erreur de chargement des données: ${result.exception.toString()}');
+          }
+
+          if (result.isLoading) {
+            return CircularProgressIndicator();
+          }
+
+          final groups = result.data!['groups'];
+
+          return ListView.builder(
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              final group = groups[index];
+              return GroupStandingsItem(group: group);
+            },
+          );
         },
       ),
     );
   }
 }
 
-class Group {
-  final String groupName;
-  final List<Team> teams;
-
-  Group({
-    required this.groupName,
-    required this.teams,
-  });
-}
-
-class Team {
-  final int position;
-  final String name;
-  final int points;
-
-  Team({
-    required this.position,
-    required this.name,
-    required this.points,
-  });
-}
-
 class GroupStandingsItem extends StatelessWidget {
-  final Group group;
+  final dynamic group;
 
   GroupStandingsItem({required this.group});
 
@@ -104,7 +88,7 @@ class GroupStandingsItem extends StatelessWidget {
         children: [
           ListTile(
             title: Text(
-              group.groupName,
+              group['name'],
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -113,10 +97,14 @@ class GroupStandingsItem extends StatelessWidget {
           ),
           Divider(),
           Column(
-            children: group.teams.map((team) {
+            children: (group['teams'] as List).map((team) {
               return ListTile(
-                leading: Text('${team.position}.'),
-                title: Text('${team.name} : ${team.points} points'),
+                leading: Image.network(
+                  team['flagURL'], // Utilisez le champ 'flagURL' pour afficher le drapeau
+                  width: 40,
+                  height: 40,
+                ),
+                title: Text(team['name']),
               );
             }).toList(),
           ),

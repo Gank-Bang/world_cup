@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
@@ -20,72 +24,89 @@ class MyApp extends StatelessWidget {
 class MatchListPage extends StatelessWidget {
   MatchListPage();
 
-  // Exemples de matchs
-  final List<Match> matches = [
-    Match(
-      homeTeam: 'France',
-      awayTeam: 'Croatia',
-      score: '4 - 2',
-    ),
-    Match(
-      homeTeam: 'Brazil',
-      awayTeam: 'Belgium',
-      score: '1 - 2',
-    ),
-    Match(
-      homeTeam: 'England',
-      awayTeam: 'Sweden',
-      score: '2 - 0',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Supprime le bouton de retour
+        automaticallyImplyLeading: false,
         title: Text(
           'Matchs',
           style: GoogleFonts.bebasNeue(
-            fontSize: 24, // Taille de la police
-            fontWeight: FontWeight.bold, // Gras
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: matches.length,
-        itemBuilder: (context, index) {
-          return MatchListItem(match: matches[index]);
+      body: Query(
+        options: QueryOptions(
+          document: gql('''
+            query {
+              matchs {
+                id
+                matchDay
+                teamA {
+                  name
+                }
+                teamB {
+                  name
+                }
+                teamAScore
+                teamBScore
+              }
+            }
+          '''),
+        ),
+        builder: (QueryResult result, {refetch, fetchMore}) {
+          if (result.hasException) {
+            return Text('Erreur de chargement des données: ${result.exception.toString()}');
+          }
+
+          if (result.isLoading) {
+            return CircularProgressIndicator();
+          }
+
+          final matches = result.data!['matchs'];
+
+          return ListView.builder(
+            itemCount: matches.length,
+            itemBuilder: (context, index) {
+              final match = matches[index];
+              return MatchListItem(
+      homeTeam: match['teamA']['name'],
+      awayTeam: match['teamB']['name'],
+      score: '${match['teamAScore']} - ${match['teamBScore']}',
+      //matchDay: match['matchDay'],
+    );
+            },
+          );
         },
       ),
     );
   }
 }
 
-class Match {
+class MatchListItem extends StatelessWidget {
   final String homeTeam;
   final String awayTeam;
   final String score;
+  //final String matchDay;
 
-  Match({
+  const MatchListItem({
     required this.homeTeam,
     required this.awayTeam,
     required this.score,
+    //required this.matchDay,
   });
-}
-
-class MatchListItem extends StatelessWidget {
-  final Match match;
-
-  const MatchListItem({required this.match});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text('${match.homeTeam} vs ${match.awayTeam}'),
-      subtitle: Text('Score: ${match.score}'),
-      leading: Icon(Icons.sports_soccer),
-      // Vous pouvez ajouter d'autres détails du match ici
+    return Card(
+      child: ListTile(
+        title: Text('$homeTeam vs $awayTeam'),
+        subtitle: Text('Score: $score'),
+        //trailing: Text('Journée $matchDay'),
+        leading: Icon(Icons.sports_soccer),
+      ),
     );
   }
 }

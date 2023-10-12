@@ -1,54 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:world_cup/create_team.dart';
 import 'package:world_cup/team_detail.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Classement de la Coupe du Monde',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: TeamRankingPage(),
-    );
-  }
-}
-
 class TeamRankingPage extends StatelessWidget {
   TeamRankingPage();
-
-  // Exemples de classement d'équipes
-  final List<Team> teams = [
-    Team(
-      position: 1,
-      name: 'France',
-      flagUrl:
-          'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/1280px-Flag_of_France.svg.png',
-    ),
-    Team(
-      position: 2,
-      name: 'Croatia',
-      flagUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Flag_of_Croatia.svg/1280px-Flag_of_Croatia.svg.png',
-    ),
-    Team(
-      position: 3,
-      name: 'Brazil',
-      flagUrl:
-          'https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Flag_of_Brazil.svg/1280px-Flag_of_Brazil.svg.png',
-    ),
-    Team(
-      position: 4,
-      name: 'Belgium',
-      flagUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Flag_of_Belgium.svg/1280px-Flag_of_Belgium.svg.png',
-    ),
-    // Ajoutez d'autres équipes ici
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +32,37 @@ class TeamRankingPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: teams.length,
-        itemBuilder: (context, index) {
-          return TeamRankingItem(team: teams[index]);
+      body: Query(
+        options: QueryOptions(
+          document: gql('''
+            query {
+              teams {
+                id
+                name
+                flagURL
+              }
+            }
+          '''),
+        ),
+        builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+          if (result.hasException) {
+            print(result.exception);
+            return Text('Erreur GraphQL: ${result.exception}');
+          }
+
+          if (result.isLoading) {
+            return Text('Chargement...');
+          }
+
+          final List<dynamic> teamData = result.data?['teams'] ?? [];
+
+          return ListView.builder(
+            itemCount: teamData.length,
+            itemBuilder: (context, index) {
+              final team = Team.fromJson(teamData[index]);
+              return TeamRankingItem(team: team);
+            },
+          );
         },
       ),
     );
@@ -86,15 +70,23 @@ class TeamRankingPage extends StatelessWidget {
 }
 
 class Team {
-  final int position;
+  final String id;
   final String name;
-  final String flagUrl;
+  final String flagURL;
 
   Team({
-    required this.position,
+    required this.id,
     required this.name,
-    required this.flagUrl,
+    required this.flagURL,
   });
+
+  factory Team.fromJson(Map<String, dynamic> json) {
+    return Team(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      flagURL: json['flagURL'] as String,
+    );
+  }
 }
 
 class TeamRankingItem extends StatelessWidget {
@@ -106,18 +98,18 @@ class TeamRankingItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Image.network(
-        team.flagUrl,
+        team.flagURL,
         width: 40,
         height: 30,
       ),
       title: Text(
-        '${team.position}. ${team.name}',
+        ' ${team.name}',
         style: const TextStyle(fontSize: 18),
       ),
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => TeamDetail(teamName: team.name),
+            builder: (context) => TeamDetail(teamName: team.name, teamId: team.id),
           ),
         );
       },
