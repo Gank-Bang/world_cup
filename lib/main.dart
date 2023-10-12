@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:world_cup/api_graphql.dart';
 import 'package:world_cup/classement.dart';
+import 'package:world_cup/login.dart';
 import 'package:world_cup/poules.dart';
 import 'package:world_cup/recherche.dart';
 
@@ -19,20 +20,20 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
 
+  // Créez une variable d'état de connexion (par exemple, isLoggedIn)
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
       title: 'Flutter Demo',
       theme: ThemeData.dark().copyWith(
-        // Utilisez le themeData.dark() pour obtenir un thème sombre de base
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          // Définissez la couleur du texte pour les icônes inactives ici
           unselectedItemColor: Colors.grey,
         ),
       ),
-      home: const MyHomePage(),
+      home: Login(), 
     );
   }
 }

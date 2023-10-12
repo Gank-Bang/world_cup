@@ -37,6 +37,7 @@ dependencies:
   google_fonts: 
   graphql: ^5.2.0-beta.6
   graphql_flutter: ^5.2.0-beta.5
+  fluttertoast: ^8.2.2
 
 dev_dependencies:
   flutter_test:

@@ -44,9 +44,7 @@ class _CreateTeamState extends State<CreateTeam> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // Le formulaire est valide, vous pouvez traiter les données ici
-                    final teamName = _teamNameController.text;
-                    // Ajoutez la logique pour enregistrer l'équipe
+                    //final teamName = _teamNameController.text;
                   }
                 },
                 child: const Text('Valider'),
