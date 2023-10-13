@@ -22,7 +22,6 @@ class TeamRankingPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // Lorsque le bouton "+" est cliqué, naviguez vers la page CreateTeam
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const CreateTeam(),
@@ -84,7 +83,7 @@ class Team {
     return Team(
       id: json['id'] as String,
       name: json['name'] as String,
-      flagURL: json['flagURL'] as String,
+      flagURL: json['flagURL'] as String? ?? '',
     );
   }
 }
@@ -97,11 +96,13 @@ class TeamRankingItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.network(
-        team.flagURL,
-        width: 40,
-        height: 30,
-      ),
+      leading: team.flagURL != ''
+          ? Image.network(
+              team.flagURL,
+              width: 40,
+              height: 30,
+            )
+          : Icon(Icons.flag),
       title: Text(
         ' ${team.name}',
         style: const TextStyle(fontSize: 18),

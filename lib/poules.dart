@@ -56,7 +56,7 @@ class GroupStandingsPage extends StatelessWidget {
           }
 
           if (result.isLoading) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
 
           final groups = result.data!['groups'];
@@ -89,21 +89,24 @@ class GroupStandingsItem extends StatelessWidget {
           ListTile(
             title: Text(
               group['name'],
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          Divider(),
+          const Divider(),
           Column(
             children: (group['teams'] as List).map((team) {
+              final flagURL = team['flagURL'];
               return ListTile(
-                leading: Image.network(
-                  team['flagURL'], // Utilisez le champ 'flagURL' pour afficher le drapeau
-                  width: 40,
-                  height: 40,
-                ),
+                leading: flagURL != null
+                    ? Image.network(
+                        flagURL,
+                        width: 40,
+                        height: 40,
+                      )
+                    : const Icon(Icons.flag), // Remplacez Icon(Icons.flag) par le widget que vous souhaitez afficher en cas d'absence de drapeau.
                 title: Text(team['name']),
               );
             }).toList(),
@@ -113,3 +116,4 @@ class GroupStandingsItem extends StatelessWidget {
     );
   }
 }
+

@@ -29,8 +29,7 @@ class Register extends StatelessWidget {
 
     if (result.hasException) {
       print('GraphQL Error: ${result.exception.toString()}');
-      // Gérer l'erreur d'inscription
-      // Par exemple, afficher un toast pour indiquer l'échec de l'inscription
+      
     } else {
       final userData = result.data?['createUser'];
       if (userData != null) {

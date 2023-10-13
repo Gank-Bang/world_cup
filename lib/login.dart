@@ -10,7 +10,7 @@ class Login extends StatelessWidget {
 
   Future<void> loginUser(context, String username, String password) async {
     final client = GraphQLClient(
-      link: HttpLink('http://localhost:3100/graphql'), // Remplacez par l'URL de votre serveur GraphQL
+      link: HttpLink('http://10.0.2.2:3100/graphql'), 
       cache: GraphQLCache(),
     );
 

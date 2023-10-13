@@ -20,7 +20,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
 
-  // Créez une variable d'état de connexion (par exemple, isLoggedIn)
 
 
   @override
@@ -46,9 +45,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0; // Index for the selected bottom navigation bar item
+  int _currentIndex = 0; 
 
-  // List of widgets to be displayed based on the selected item
   final List<Widget> _views = [
     MatchListPage(),
     MatchSearchPage(),

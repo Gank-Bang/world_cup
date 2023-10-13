@@ -29,7 +29,7 @@ class _MatchSearchPageState extends State<MatchSearchPage> {
   String _searchQuery = '';
 
   final _client = GraphQLClient(
-    link: HttpLink('http://localhost:3100/graphql'),
+    link: HttpLink('http://10.0.2.2:3100/graphql'),
     cache: GraphQLCache(),
   );
 
