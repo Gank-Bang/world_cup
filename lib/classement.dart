@@ -87,7 +87,6 @@ class Team {
     );
   }
 }
-
 class TeamRankingItem extends StatelessWidget {
   final Team team;
 
@@ -102,7 +101,7 @@ class TeamRankingItem extends StatelessWidget {
               width: 40,
               height: 30,
             )
-          : Icon(Icons.flag),
+          : Image.asset('assets/téléchargement.jpeg'), 
       title: Text(
         ' ${team.name}',
         style: const TextStyle(fontSize: 18),

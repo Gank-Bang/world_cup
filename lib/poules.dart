@@ -106,7 +106,7 @@ class GroupStandingsItem extends StatelessWidget {
                         width: 40,
                         height: 40,
                       )
-                    : const Icon(Icons.flag), // Remplacez Icon(Icons.flag) par le widget que vous souhaitez afficher en cas d'absence de drapeau.
+                    : Image.asset('assets/téléchargement.jpeg'), 
                 title: Text(team['name']),
               );
             }).toList(),
