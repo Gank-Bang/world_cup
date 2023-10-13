@@ -29,7 +29,7 @@ class _MatchSearchPageState extends State<MatchSearchPage> {
   String _searchQuery = '';
 
   final _client = GraphQLClient(
-    link: HttpLink('http://10.0.2.2:3100/graphql'),
+    link: HttpLink('https://wcap-apigphql-63cf92fc1c4a.herokuapp.com/graphql'),
     cache: GraphQLCache(),
   );
 

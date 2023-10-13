@@ -7,7 +7,7 @@ class Register extends StatelessWidget {
 
   Future<void> createUser(BuildContext context, String username, String password) async {
     final client = GraphQLClient(
-      link: HttpLink('http://10.0.2.2:3100/graphql'), // Remplacez par l'URL de votre serveur GraphQL
+      link: HttpLink('https://wcap-apigphql-63cf92fc1c4a.herokuapp.com/graphql'), // Remplacez par l'URL de votre serveur GraphQL
       cache: GraphQLCache(),
     );
 
